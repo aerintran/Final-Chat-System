@@ -5,6 +5,8 @@ Created on Sun Apr  5 00:00:32 2015
 """
 from chat_utils import *
 import json
+from cryptography.fernet import Fernet # Requires cryptography to be installed
+
 
 class ClientSM:
     def __init__(self, s):
@@ -48,6 +50,22 @@ class ClientSM:
         self.out_msg += 'You are disconnected from ' + self.peer + '\n'
         self.peer = ''
 
+    def encrypt(self, my_msg):
+        with open('key.key', 'rb') as f:
+            key = f.read() # Get personal key
+            fern = Fernet(key) # Initialize 
+            encrypted_text = fern.encrypt(my_msg.encode()).decode() # Encrypt msg as byets and decode enrypted bytes
+
+        return encrypted_text
+
+    def decrypt(self, encrypted_text):
+        with open('key.key', 'rb') as f:
+            key = f.read() # Get personal key
+            fern = Fernet(key) # Initialize
+            decrypted_text = fern.decrypt(encrypted_text.encode()).decode() # Decrypt args
+        
+        return decrypted_text
+
     def proc(self, my_msg, peer_msg):
         self.out_msg = ''
 #==============================================================================
@@ -79,8 +97,11 @@ class ClientSM:
                     peer = peer.strip()
                     if self.connect_to(peer) == True:
                         self.state = S_CHATTING
-                        self.out_msg += 'Connect to ' + peer + '. Chat away!\n\n'
+                        self.out_msg += 'Connect to ' + peer + ' and your messages are encrypted. Chat away (securely)!\n\n'
                         self.out_msg += '-----------------------------------\n'
+                        with open('key.key', 'wb') as f:
+                            _key = Fernet.generate_key()
+                            f.write(_key)
                     else:
                         self.out_msg += 'Connection unsuccessful\n'
 
