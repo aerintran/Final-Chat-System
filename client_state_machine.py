@@ -124,6 +124,23 @@ class ClientSM:
                     else:
                         self.out_msg += 'Sonnet ' + poem_idx + ' not found\n\n'
 
+# ================================== emoji ====================================
+                elif my_msg=='(eh)':
+                        self.out_msg += "\U0001f600"
+                        mysend(self.s, json.dumps({"action":"emoji", "target":"\U0001f600"}))
+                elif my_msg=='(es)':
+                        self.out_msg += "\U0001f612"
+                        mysend(self.s, json.dumps({"action":"emoji", "target":"\U0001f612"}))
+                elif my_msg=='(eu)':
+                        self.out_msg += "\U0001f610"
+                        mysend(self.s, json.dumps({"action":"emoji", "target":"\U0001f610"}))
+                elif my_msg == 'emoji':
+                    self.out_msg += "\U0001f612"
+                    mysend(self.s, json.dumps({"action":"emoji", "target":"\U0001f612"}))
+#==============================================================================
+
+
+
                 else:
                     self.out_msg += menu
 
@@ -143,8 +160,30 @@ class ClientSM:
 #==============================================================================
         elif self.state == S_CHATTING:
             if len(my_msg) > 0:     # my stuff going out
-                mysend(self.s, json.dumps({"action":"exchange", "from":"[" + self.me + "]", "message":my_msg}))
-                if my_msg == 'bye':
+            
+#================================ emoji =======================================
+               if "(eh)" not in my_msg and "(eu)" not in my_msg and "(es)" not in my_msg and "emoji" not in my_msg:
+                    mysend(self.s, json.dumps({"action":"exchange", "from":"[" + self.me + "]", "message":my_msg}))
+               if "(eh)" or "(eu)" or "(es)" in my_msg:
+                    if"(eh)" in my_msg:
+                        emoji = my_msg.replace("(eh)","\U0001f600")
+                        self.out_msg = my_msg.replace("(eh)","\U0001f600")
+                        mysend(self.s, json.dumps({"action":"emoji_exchange", "from":"[" + self.me + "]", "message":emoji}))
+                    if"(es)" in my_msg:
+                        emoji = my_msg.replace("(es)","\U0001f612")
+                        self.out_msg = my_msg.replace("(es)","\U0001f612")
+                        mysend(self.s, json.dumps({"action":"emoji_exchange", "from":"[" + self.me + "]", "message":emoji}))
+                    if"(eu)" in my_msg:
+                        emoji = my_msg.replace("(eu)","\U0001f610")
+                        self.out_msg = my_msg.replace("(eu)","\U0001f610")
+                        mysend(self.s, json.dumps({"action":"emoji_exchange", "from":"[" + self.me + "]", "message":emoji}))
+               if my_msg == 'emoji':
+                    self.out_msg += "\U0001f612"
+                    mysend(self.s, json.dumps({"action":"emoji_exchange", "from":"[" + self.me + "]", "message":"\U0001f612"}))
+#============================================================================== 
+
+           
+               if my_msg == 'bye':
                     self.disconnect()
                     self.state = S_LOGGEDIN
                     self.peer = ''
